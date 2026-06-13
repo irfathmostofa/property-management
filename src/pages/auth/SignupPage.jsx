@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -56,44 +55,51 @@ export function SignupPage() {
     setLoading(true);
 
     try {
-      // First, create the user
-      const { data: authData, error: signUpError } = await supabase.auth.signUp(
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-      );
+      // Prepare metadata with all required fields
+      const metadata = {
+        full_name: formData.full_name,
+        phone: formData.phone,
+        whatsapp_number: formData.whatsapp_number || "",
+        nid: formData.nid || "",
+        address: formData.address || "",
+        role: formData.role,
+      };
 
-      if (signUpError) throw signUpError;
+      console.log("Attempting signup with metadata:", metadata);
+
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: metadata,
+        },
+      });
+
+      if (signUpError) {
+        console.error("Signup error details:", signUpError);
+        throw signUpError;
+      }
 
       if (authData.user) {
-        // After user is created, update the profile with additional info
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            full_name: formData.full_name,
-            phone: formData.phone,
-            whatsapp_number: formData.whatsapp_number,
-            nid: formData.nid,
-            address: formData.address,
-            role: formData.role,
-          })
-          .eq("id", authData.user.id);
-
-        if (updateError) {
-          console.error("Profile update error:", updateError);
-          toast.error(
-            "Account created but profile update failed. Please contact support.",
-          );
-        } else {
-          toast.success("Account created successfully! Please sign in.");
-        }
-
-        navigate("/login");
+        console.log("User created successfully:", authData.user.id);
+        
+        // Small delay to ensure trigger has run
+        setTimeout(() => {
+          toast.success("Account created successfully! Please check your email to verify your account.");
+          navigate("/login");
+        }, 1500);
       }
     } catch (error) {
       console.error("Signup error:", error);
-      toast.error(error.message || "Failed to create account");
+      
+      // Specific error messages
+      if (error.message.includes("Database error")) {
+        toast.error("Database error. Please contact support or try again later.");
+      } else if (error.message.includes("User already registered")) {
+        toast.error("An account with this email already exists.");
+      } else {
+        toast.error(error.message || "Failed to create account");
+      }
     } finally {
       setLoading(false);
     }
@@ -166,9 +172,8 @@ export function SignupPage() {
                 />
 
                 <Input
-                  label="NID Number"
+                  label="NID Number (Optional)"
                   name="nid"
-                  required
                   value={formData.nid}
                   onChange={handleChange}
                   icon={CreditCard}
@@ -188,7 +193,6 @@ export function SignupPage() {
                   <Input
                     label="Address"
                     name="address"
-                    required
                     value={formData.address}
                     onChange={handleChange}
                     icon={MapPin}

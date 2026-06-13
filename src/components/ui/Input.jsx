@@ -1,68 +1,131 @@
-import { forwardRef, useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
-import { cn } from '../../lib/utils'
+// components/ui/Input.jsx
+import { cn } from "../../lib/utils";
 
-export const Input = forwardRef(({
+export function Input({
   label,
   error,
-  icon: Icon,
-  type = 'text',
+  hint,
+  icon: IconComponent,  // Rename to IconComponent to avoid confusion
   className,
   required,
   ...props
-}, ref) => {
-  const [showPassword, setShowPassword] = useState(false)
-  const isPassword = type === 'password'
-  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type
-
+}) {
   return (
-    <div className="w-full">
+    <div className="field">
       {label && (
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="field-label">
           {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
+          {required && <span className="field-required">*</span>}
         </label>
       )}
-      
-      <div className="relative w-full">
-        {Icon && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Icon className="h-5 w-5 text-gray-400" />
-          </div>
+      <div className="field-wrap">
+        {IconComponent && (
+          <span className="field-icon">
+            {typeof IconComponent === 'function' ? <IconComponent size={16} /> : IconComponent}
+          </span>
         )}
-        
         <input
-          ref={ref}
-          type={inputType}
           className={cn(
-            'w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2',
-            error 
-              ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500',
-            Icon && 'pl-10',
-            className
+            "field-input",
+            IconComponent && "field-input--icon",
+            error && "field-input--error",
+            className,
           )}
           {...props}
         />
-        
-        {isPassword && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-            ) : (
-              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-            )}
-          </button>
-        )}
       </div>
-      
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
+      {hint && !error && <p className="field-hint">{hint}</p>}
     </div>
-  )
-})
+  );
+}
 
-Input.displayName = 'Input'
+export function Select({
+  label,
+  error,
+  hint,
+  children,
+  required,
+  className,
+  icon: IconComponent,
+  ...props
+}) {
+  return (
+    <div className="field">
+      {label && (
+        <label className="field-label">
+          {label}
+          {required && <span className="field-required">*</span>}
+        </label>
+      )}
+      <div className="field-wrap">
+        {IconComponent && (
+          <span className="field-icon">
+            {typeof IconComponent === 'function' ? <IconComponent size={16} /> : IconComponent}
+          </span>
+        )}
+        <select
+          className={cn(
+            "field-input field-select",
+            IconComponent && "field-input--icon",
+            error && "field-input--error",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </select>
+      </div>
+      {error && <p className="field-error">{error}</p>}
+      {hint && !error && <p className="field-hint">{hint}</p>}
+    </div>
+  );
+}
+
+export function Textarea({
+  label,
+  error,
+  hint,
+  required,
+  className,
+  icon: IconComponent,
+  ...props
+}) {
+  return (
+    <div className="field">
+      {label && (
+        <label className="field-label">
+          {label}
+          {required && <span className="field-required">*</span>}
+        </label>
+      )}
+      <div className="field-wrap">
+        {IconComponent && (
+          <span className="field-icon">
+            {typeof IconComponent === 'function' ? <IconComponent size={16} /> : IconComponent}
+          </span>
+        )}
+        <textarea
+          className={cn(
+            "field-input field-textarea",
+            IconComponent && "field-input--icon",
+            error && "field-input--error",
+            className,
+          )}
+          {...props}
+        />
+      </div>
+      {error && <p className="field-error">{error}</p>}
+      {hint && !error && <p className="field-hint">{hint}</p>}
+    </div>
+  );
+}
+
+export function Checkbox({ label, ...props }) {
+  return (
+    <label className="checkbox-label">
+      <input type="checkbox" className="checkbox-input" {...props} />
+      <span className="checkbox-text">{label}</span>
+    </label>
+  );
+}

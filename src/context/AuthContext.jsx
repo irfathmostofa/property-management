@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../utils/supabase";
+
 
 const AuthContext = createContext(null);
 
@@ -9,14 +10,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) fetchProfile(session.user.id);
       else setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -32,66 +31,37 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function fetchProfile(userId) {
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      setProfile(data);
-    } catch (err) {
-      console.error("Profile fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    setProfile(data);
+    setLoading(false);
   }
 
-  async function signUp({
-    email,
-    password,
-    full_name,
-    phone,
-    whatsapp_number,
-    nid,
-    address,
-  }) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name, phone, whatsapp_number, nid, address },
-      },
-    });
-    return { data, error };
-  }
-
-  async function signIn({ email, password }) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+  async function signIn(email, password) {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    return { data, error };
+    return { error };
+  }
+
+  async function signUp(email, password, meta) {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: meta },
+    });
+    return { error };
   }
 
   async function signOut() {
     await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-  }
-
-  async function updateProfile(updates) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .update(updates)
-      .eq("id", user.id)
-      .select()
-      .single();
-    if (!error) setProfile(data);
-    return { data, error };
   }
 
   const isAdmin = profile?.role === "admin";
-  const isOwner = profile?.role === "owner";
 
   return (
     <AuthContext.Provider
@@ -100,12 +70,10 @@ export function AuthProvider({ children }) {
         profile,
         loading,
         isAdmin,
-        isOwner,
-        signUp,
         signIn,
+        signUp,
         signOut,
-        updateProfile,
-        refetchProfile: () => fetchProfile(user?.id),
+        fetchProfile,
       }}
     >
       {children}

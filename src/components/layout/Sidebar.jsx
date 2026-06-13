@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Building2,
@@ -10,27 +10,27 @@ import {
   FileText,
   Settings,
   LogOut,
-} from 'lucide-react'
-import { useAuth } from '../../hooks/useAuth'
-import { cn } from '../../lib/utils'
+} from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { cn } from "../../lib/utils";
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Buildings', href: '/buildings', icon: Building2 },
-  { name: 'Apartments', href: '/apartments', icon: Home },
-  { name: 'Cottages', href: '/cottages', icon: Trees },
-  { name: 'Renters', href: '/renters', icon: Users },
-  { name: 'Payments', href: '/payments', icon: CreditCard },
-  { name: 'Notifications', href: '/notifications', icon: Bell },
-  { name: 'Reports', href: '/reports', icon: FileText },
-]
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Buildings", href: "/buildings", icon: Building2 },
+  { name: "Apartments", href: "/apartments", icon: Home },
+  { name: "Cottages", href: "/cottages", icon: Trees },
+  { name: "Renters", href: "/renters", icon: Users },
+  { name: "Payments", href: "/payments", icon: CreditCard },
+  { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Reports", href: "/reports", icon: FileText },
+];
 
 const adminNavigation = [
-  { name: 'Admin Panel', href: '/admin', icon: Settings },
-]
+  { name: "Admin Panel", href: "/admin", icon: Settings },
+];
 
 export function Sidebar() {
-  const { signOut, isAdmin } = useAuth()
+  const { signOut, isAdmin } = useAuth();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200">
@@ -48,10 +48,10 @@ export function Sidebar() {
               to={item.href}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                  "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? "bg-primary-50 text-primary-700"
+                    : "text-gray-700 hover:bg-gray-100",
                 )
               }
             >
@@ -59,7 +59,7 @@ export function Sidebar() {
               {item.name}
             </NavLink>
           ))}
-          
+
           {isAdmin && (
             <>
               <div className="my-4 border-t border-gray-200" />
@@ -69,10 +69,10 @@ export function Sidebar() {
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                      "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
                       isActive
-                        ? 'bg-primary-50 text-primary-700'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? "bg-primary-50 text-primary-700"
+                        : "text-gray-700 hover:bg-gray-100",
                     )
                   }
                 >
@@ -96,5 +96,5 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
-  )
+  );
 }
